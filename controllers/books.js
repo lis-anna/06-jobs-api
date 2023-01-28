@@ -1,13 +1,27 @@
 const Book = require('../models/Book');
 const StatusCodes = require('http-status-codes');
 const { BadRequestError, NotFoundError } = require('../errors');
+
 const getAllBooks = async (req, res) => {
-  res.send('get all jobs');
+  const books = await Book.find({ createdBy: req.user.userId }).sort(
+    'createdAt'
+  );
+  res.status(StatusCodes.OK).json({ books, count: books.length });
 };
 
 const getBook = async (req, res) => {
-  res.send('get job');
+  const {
+    user: { userId },
+    params: { id: bookId },
+  } = req;
+
+  const book = await Book.findOne({ _id: bookId, createdBy: userId });
+  if (!book) {
+    throw new NotFoundError(`Not found book with id ${bookId}`);
+  }
+  res.status(StatusCodes.OK).json({ book });
 };
+
 const addBook = async (req, res) => {
   req.body.createdBy = req.user.userId;
   const book = await Book.create(req.body);
@@ -15,11 +29,40 @@ const addBook = async (req, res) => {
 
   res.json(req.body);
 };
+
 const updateBook = async (req, res) => {
-  res.send('udpate job');
+  const {
+    body: { title, author },
+    user: { userId },
+    params: { id: bookId },
+  } = req;
+  if (title === '' || author === '') {
+    throw new BadRequestError('Please provide book title and author');
+  }
+  const book = await Book.findByIdAndUpdate(
+    { _id: bookId, createdBy: userId },
+    req.body,
+    { new: true, runValidators: true }
+  );
+  if (!book) {
+    throw new NotFoundError(`Not found book with id ${bookId}`);
+  }
+  res.status(StatusCodes.OK).json({ book });
 };
+
 const deleteBook = async (req, res) => {
-  res.send('create job');
+  const {
+    user: { userId },
+    params: { id: bookId },
+  } = req;
+
+  const book = await Book.findOneAndRemove({ _id: bookId, createdBy: userId });
+
+  if (!book) {
+    throw new NotFoundError(`Not found book with id ${bookId}`);
+  }
+
+  res.status(StatusCodes.OK).send('Deleted');
 };
 
 module.exports = {
