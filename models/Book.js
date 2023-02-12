@@ -14,32 +14,42 @@ const BookSchema = new mongoose.Schema(
       minlength: 2,
       maxlength: 100,
     },
-    pages: {
+    isbn: {
+      type: String,
+      required: [true, 'Please provide ISBN'],
+      minlength: 9,
+      maxlength: 13,
+    },
+    bookIllustrator: {
+      type: String,
+      required: false,
+      minlength: 2,
+      maxlength: 100,
+    },
+    numOfPages: {
       type: Number,
       required: false,
     },
-    publisher: {
+    bookPublisher: {
       type: String,
       required: false,
       minlength: 2,
       maxlength: 100,
     },
-    illustrator: {
-      type: String,
-      required: false,
-      minlength: 2,
-      maxlength: 100,
-    },
-    published: {
+    publishedDate: {
       type: Date,
       required: false,
     },
-    ageFrom: {
-      type: Number,
-      required: false,
-    },
-    ageTo: {
-      type: Number,
+    ageCategory: {
+      type: String,
+      enum: [
+        '0 to 2',
+        'preschool',
+        '3 to 5',
+        ' mid school age',
+        'uncategorized',
+      ],
+      default: 'uncategorized',
       required: false,
     },
     weight: {
@@ -55,6 +65,10 @@ const BookSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: 'User',
       required: [true, 'Please provide user'],
+    },
+    Note: {
+      type: String,
+      required: false,
     },
   },
   { timestamps: true }
