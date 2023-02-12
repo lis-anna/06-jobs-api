@@ -62,7 +62,7 @@ const deleteBook = async (req, res) => {
     throw new NotFoundError(`Not found book with id ${bookId}`);
   }
 
-  res.status(StatusCodes.OK).send('Deleted');
+  res.status(StatusCodes.OK).json({ msg: 'Deleted' });
 };
 
 module.exports = {
